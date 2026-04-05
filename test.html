@@ -52,7 +52,7 @@
         const htmlText = await res.text();
         const doc = new DOMParser().parseFromString(htmlText, "text/html");
 
-        const manifest = doc.querySelector('link[href="manifest.json"]');
+        const manifest = doc.querySelector('link[href="./manifest.json"]');
         assert(manifest, "Missing manifest");
 
         const scripts = Array.from(doc.querySelectorAll("script"));

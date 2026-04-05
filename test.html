@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+</head>
+<body>
+  <h1>Tests</h1>
+
+  <script>
+    async function test(name, fn) {
+      try {
+        await fn();
+        console.log("✅", name);
+      } catch (e) {
+        console.error("❌", name, e.message);
+      }
+    }
+
+    function assert(condition, message) {
+      if (!condition) throw new Error(message);
+    }
+
+    /* ---------------- TESTS ---------------- */
+    test("Check test infrastructure", () => {
+        assert(true, "placeholder test");
+    });
+
+    /*  INDEX ---------------- */
+    test("Is there an index.html file?", async () => {
+        const res = await fetch("./index.html");
+        assert(res.ok, "Missing file");
+    });
+
+    test("The index file has an h1 Hello world?", async () => {
+        const res = await fetch("./index.html");
+        assert(res.ok, "index.html missing");
+
+        const htmlText = await res.text();
+
+        const doc = new DOMParser().parseFromString(htmlText, "text/html");
+
+        const h1 = doc.querySelector("h1");
+
+        assert(h1, "Missing <h1>");
+        assert(h1.textContent.includes("Hello World!"), "No Hello world in h1");
+    });
+
+    test("The index file has sw.js and manifest.js?", async () => {
+        const res = await fetch("./index.html");
+        assert(res.ok, "index.html missing");
+
+        const htmlText = await res.text();
+        const doc = new DOMParser().parseFromString(htmlText, "text/html");
+
+        const manifest = doc.querySelector('link[href="manifest.json"]');
+        assert(manifest, "Missing manifest");
+
+        const scripts = Array.from(doc.querySelectorAll("script"));
+        const found = scripts.some(script =>
+            script.textContent.includes("serviceWorker.register('sw.js')")
+        );
+        assert(found, "Missing service worker registration script");
+    });
+
+    /*  MANIFEST ---------------- */
+    test("Is there a manifest.json file?", async () => {
+        const res = await fetch("./manifest.json");
+        assert(res.ok, "Missing file");
+    });
+
+    test("manifest.json has required PWA fields?", async () => {
+        const res = await fetch("./manifest.json");
+        assert(res.ok, "manifest.json missing");
+
+        const manifest = await res.json();
+
+        assert(manifest.name === "Listly", "Incorrect or missing name");
+        assert(manifest.short_name === "Listly", "Incorrect or missing short_name");
+        assert(manifest.start_url === ".", "Incorrect start_url");
+        assert(manifest.display === "standalone", "Incorrect display mode");
+        assert(manifest.background_color === "#ffffff", "Incorrect background_color");
+        assert(manifest.theme_color === "#ffffff", "Incorrect theme_color");
+    });
+
+    /*  SW ---------------- */
+    test("Is there a sw.js file?", async () => {
+        const res = await fetch("./sw.js");
+        assert(res.ok, "Missing file");
+    });
+
+    test("service worker contains install event listener", async () => {
+        const res = await fetch("./sw.js");
+        assert(res.ok, "sw.js missing");
+
+        const code = await res.text();
+
+        assert(
+            code.includes("self.addEventListener('install'"),
+            "Missing install event listener"
+        );
+    });
+  </script>
+</body>
+</html>

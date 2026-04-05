@@ -31,7 +31,7 @@
         assert(res.ok, "Missing file");
     });
 
-    test("The index file has an h1 Hello world?", async () => {
+    test("The index file has an h1 with the current date?", async () => {
         const res = await fetch("./index.html");
         assert(res.ok, "index.html missing");
 
@@ -42,7 +42,7 @@
         const h1 = doc.querySelector("h1");
 
         assert(h1, "Missing <h1>");
-        assert(h1.textContent.includes("Hello World!"), "No Hello world in h1");
+        assert(isValidDateString(h1), "Date is not valid");
     });
 
     test("The index file has sw.js and manifest.js?", async () => {

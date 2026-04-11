@@ -18,19 +18,44 @@
     const today = new Date().toISOString().split("T")[0];
     document.getElementById("date").textContent = today;   
 
+    const raw = localStorage.getItem("ToDos");
+    const todos = raw ? JSON.parse(raw) : [];
+    try{
+      todos.forEach(AddItem);
+    }catch{
+
+    }
+
     const button = document.getElementById("add-btn");    
     button.addEventListener("click", () => {
       const input = document.getElementById("todo-input");    
       const text = input.value.trim();
-      
-      if (text === "") return;
 
+      try {
+        // 1. load existing todos
+        const raw = localStorage.getItem("ToDos");
+        const todos = raw ? JSON.parse(raw) : [];
+
+        // 2. add new item
+        todos.push(text);
+
+        // 3. save back
+        localStorage.setItem("ToDos", JSON.stringify(todos));
+
+        AddItem(text);
+      } finally {
+        input.value = "";        
+      }
+    });
+
+    function AddItem(text) {
+      if (text === "") throw "empty item added";
+      
       const list = document.getElementById("todo-list");
       const li = document.createElement("li");
       li.textContent = text;
       list.appendChild(li);
-      input.value = "";
-    });
+    }
   </script>
 </body>
 </html>

@@ -31,21 +31,6 @@ test("h1 shows something", async ({ page }) => {
   expect(isValidDateString(text)).toBe(true);
 });
 
-function createSelect(page) {
-  async function select(selector) {
-    const el = page.locator(selector);
-    await expect(el).toHaveCount(1);
-    return el;
-  }
-
-  async function selectAll(selector) {
-    const el = page.locator(selector);
-    return el;
-  }
-
-  return { select, selectAll };
-}
-
 function isValidDateString(str) {
     // 1. Check format
     const match = /^\d{4}-\d{2}-\d{2}$/.test(str);
@@ -64,4 +49,37 @@ function isValidDateString(str) {
     date.getMonth() + 1 === month &&
     date.getDate() === day
     );
+}
+
+test("If i add an item and i refresh the page the item persists", async ({ page }) => {
+  const readySel = createSelect(page);
+
+  const input = await readySel.select("#todo-input");
+  const button = await readySel.select("#add-btn");
+  const list = await readySel.select("#todo-list");
+
+  await input.fill("Test todo1");
+  await button.click();
+  await input.fill("Test todo2");
+  await button.click();
+
+  await page.reload();
+
+  const listIteams = await readySel.selectAll("#todo-list li");
+  await expect(listIteams).toHaveCount(2); 
+});
+
+function createSelect(page) {
+  async function select(selector) {
+    const el = page.locator(selector);
+    await expect(el).toHaveCount(1);
+    return el;
+  }
+
+  async function selectAll(selector) {
+    const el = page.locator(selector);
+    return el;
+  }
+
+  return { select, selectAll };
 }

@@ -1,12 +1,50 @@
 import { test, expect } from "@playwright/test";
 
-test("h1 shows something", async ({ page }) => {
+test.beforeEach(async ({ page }) => {
   await page.goto("http://localhost:8080");
+});
 
-  const text = await page.textContent("h1#date");
+test("adding a todo shows it in the list", async ({ page }) => {
+  const readySel = createSelect(page);
+
+  const input = await readySel.select("#todo-input");
+  const button = await readySel.select("#add-btn");
+  const list = await readySel.select("#todo-list");
+
+  await input.fill("Test todo");
+  await button.click();
+
+  await expect(list).toContainText("Test todo");
+  await expect(input).toHaveValue("");
+
+  await button.click();
+  const listIteams = await readySel.selectAll("#todo-list li");
+  await expect(listIteams).toHaveCount(1); 
+});
+
+test("h1 shows something", async ({ page }) => {
+  const readySel = createSelect(page);
+
+  const el = await readySel.select("h1#date");
+  const text = await el.textContent();
 
   expect(isValidDateString(text)).toBe(true);
 });
+
+function createSelect(page) {
+  async function select(selector) {
+    const el = page.locator(selector);
+    await expect(el).toHaveCount(1);
+    return el;
+  }
+
+  async function selectAll(selector) {
+    const el = page.locator(selector);
+    return el;
+  }
+
+  return { select, selectAll };
+}
 
 function isValidDateString(str) {
     // 1. Check format

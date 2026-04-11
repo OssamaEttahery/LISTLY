@@ -6,6 +6,9 @@
 </head>
 <body>
   <h1 id="date"></h2>
+  <input id="todo-input" placeholder="Add a todo..." />
+  <button id="add-btn">Add</button>
+  <ul id="todo-list"></ul>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -13,7 +16,21 @@
     }
 
     const today = new Date().toISOString().split("T")[0];
-    document.getElementById("date").textContent = today;    
+    document.getElementById("date").textContent = today;   
+
+    const button = document.getElementById("add-btn");    
+    button.addEventListener("click", () => {
+      const input = document.getElementById("todo-input");    
+      const text = input.value.trim();
+      
+      if (text === "") return;
+
+      const list = document.getElementById("todo-list");
+      const li = document.createElement("li");
+      li.textContent = text;
+      list.appendChild(li);
+      input.value = "";
+    });
   </script>
 </body>
 </html>

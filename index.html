@@ -5,7 +5,9 @@
   <link rel="manifest" href="./manifest.json" />
 </head>
 <body>
+  <button id="prev-btn"><</button>
   <h1 id="date"></h2>
+  <button id="next-btn">></button>
   <input id="todo-input" placeholder="Add a todo..." />
   <button id="add-btn">Add</button>
   <ul id="todo-list"></ul>
@@ -26,8 +28,32 @@
 
     }
 
-    const button = document.getElementById("add-btn");    
-    button.addEventListener("click", () => {
+    const prevButton = document.getElementById("prev-btn");    
+    prevButton.addEventListener("click", () => {
+      const el = document.getElementById("date");
+
+      const currentDate = new Date(el.textContent);
+
+      const previousDate = new Date(currentDate);
+      previousDate.setDate(previousDate.getDate() - 1);
+
+      el.textContent = previousDate.toISOString().split("T")[0];
+    });
+
+    const nextButton = document.getElementById("next-btn");    
+    nextButton.addEventListener("click", () => {
+      const el = document.getElementById("date");
+
+      const currentDate = new Date(el.textContent);
+
+      const nextDate = new Date(currentDate);
+      nextDate.setDate(nextDate.getDate() + 1);
+
+      el.textContent = nextDate.toISOString().split("T")[0];
+    });
+
+    const addButton = document.getElementById("add-btn");    
+    addButton.addEventListener("click", () => {
       const input = document.getElementById("todo-input");    
       const text = input.value.trim();
 
@@ -36,25 +62,46 @@
         const raw = localStorage.getItem("ToDos");
         const todos = raw ? JSON.parse(raw) : [];
 
-        // 2. add new item
-        todos.push(text);
+        const newTodo = {
+          id: Date.now(),
+          text
+        };
 
-        // 3. save back
+        todos.push(newTodo);
         localStorage.setItem("ToDos", JSON.stringify(todos));
 
-        AddItem(text);
+        AddItem(newTodo);
       } finally {
         input.value = "";        
       }
     });
 
-    function AddItem(text) {
-      if (text === "") throw "empty item added";
+    function AddItem(todo) {
+      if (!todo.text) throw "empty item added";
       
       const list = document.getElementById("todo-list");
       const li = document.createElement("li");
-      li.textContent = text;
+      li.textContent = todo.text;
+
+      const btn = document.createElement("button");
+      btn.textContent = "x";
+      
+      btn.addEventListener("click", () => {
+        deleteTodo(todo.id);
+        li.remove();
+      });
+
+      li.appendChild(btn);
       list.appendChild(li);
+    }
+
+    function deleteTodo(id) {
+      const raw = localStorage.getItem("ToDos");
+      const todos = raw ? JSON.parse(raw) : [];
+
+      const updated = todos.filter(t => t.id !== id);
+
+      localStorage.setItem("ToDos", JSON.stringify(updated));
     }
   </script>
 </body>

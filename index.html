@@ -20,13 +20,7 @@
     const today = new Date().toISOString().split("T")[0];
     document.getElementById("date").textContent = today;   
 
-    const raw = localStorage.getItem("ToDos");
-    const todos = raw ? JSON.parse(raw) : [];
-    try{
-      todos.forEach(AddItem);
-    }catch{
-
-    }
+    render();
 
     const prevButton = document.getElementById("prev-btn");    
     prevButton.addEventListener("click", () => {
@@ -38,6 +32,8 @@
       previousDate.setDate(previousDate.getDate() - 1);
 
       el.textContent = previousDate.toISOString().split("T")[0];
+
+      render();
     });
 
     const nextButton = document.getElementById("next-btn");    
@@ -50,7 +46,23 @@
       nextDate.setDate(nextDate.getDate() + 1);
 
       el.textContent = nextDate.toISOString().split("T")[0];
+
+      render();
     });
+
+    function render() {
+      const list = document.getElementById("todo-list");
+      list.innerHTML = "";
+
+      const raw = localStorage.getItem("ToDos");
+      const todos = raw ? JSON.parse(raw) : [];
+
+      const currentDate = document.getElementById("date").textContent;
+
+      todos
+        .filter(todo => todo.date === currentDate)
+        .forEach(AddItem);
+    }
 
     const addButton = document.getElementById("add-btn");    
     addButton.addEventListener("click", () => {
@@ -62,9 +74,12 @@
         const raw = localStorage.getItem("ToDos");
         const todos = raw ? JSON.parse(raw) : [];
 
+        const date = document.getElementById("date").textContent;
         const newTodo = {
           id: Date.now(),
-          text
+          date,
+          text,
+          status: "pending"
         };
 
         todos.push(newTodo);
@@ -91,6 +106,38 @@
         li.remove();
       });
 
+      const select = document.createElement("select");
+      const pending = document.createElement("option");
+      pending.value = "pending";
+      pending.textContent = "⏳";
+      const done = document.createElement("option");
+      done.value = "done";
+      done.textContent = "✅";
+      const undone = document.createElement("option");
+      undone.value = "undone";
+      undone.textContent = "❌";
+
+      select.addEventListener("change", () => {
+        const raw = localStorage.getItem("ToDos");
+        const todos = raw ? JSON.parse(raw) : [];
+
+        const updated = todos.map(t => {
+          if (t.id === todo.id) {
+            return { ...t, status: select.value };
+          }
+          return t;
+        });
+
+        localStorage.setItem("ToDos", JSON.stringify(updated));
+      });
+
+      select.appendChild(pending);
+      select.appendChild(done);
+      select.appendChild(undone);
+
+      select.value = todo.status;
+      
+      li.appendChild(select);
       li.appendChild(btn);
       list.appendChild(li);
     }

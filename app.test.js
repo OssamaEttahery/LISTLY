@@ -81,6 +81,18 @@ test("adding a todo shows it in the list", async ({ page }) => {
   await button.click();
   const listIteams = await readySel.selectAll("#todo-list li");
   await expect(listIteams).toHaveCount(1); 
+
+  const selectTodo = await readySel.select("#todo-list li select");
+  await expect(selectTodo).toHaveValue("pending");
+  await page.reload();
+  await expect(selectTodo).toHaveValue("pending");
+  
+  await selectTodo.selectOption("done");
+  await selectTodo.selectOption("undone");
+
+  await page.reload();
+
+  await expect(selectTodo).toHaveValue("undone");  
 });
 
 test("If i add an item and i refresh the page the item persists", async ({ page }) => {
@@ -102,6 +114,28 @@ test("If i add an item and i refresh the page the item persists", async ({ page 
   for (const item of await listItems.all()) {
     await expect(item.locator("button")).toHaveText("x");
   }
+});
+
+test("If i add an item and i move dates the item sticks with that date", async ({ page }) => {
+  const readySel = createSelect(page);
+
+  const input = await readySel.select("#todo-input");
+  const addButton = await readySel.select("#add-btn");
+
+  await input.fill("todo today");
+  await addButton.click();
+  
+  const prevButton = await readySel.select("#prev-btn");
+  await prevButton.click();
+
+  const listItems = await readySel.selectAll("#todo-list li");
+  await expect(listItems).toHaveCount(0);
+
+  const button = await readySel.select("#next-btn");
+  await button.click();  
+  
+  const list = await readySel.select("#todo-list");
+  await expect(list).toContainText("todo today");
 });
 
 test("If i click the delete button, the item is removed", async ({ page }) => {

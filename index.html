@@ -16,6 +16,11 @@
     <button id="add-btn">Add</button>
   </div>
 
+  <div class="input-row">
+    <input id="habit-input" placeholder="Add a habit..." />
+    <button id="addHabit-btn">Add</button>
+  </div>
+
   <ul id="todo-list"></ul>
 
   <script>
@@ -68,7 +73,73 @@
       todos
         .filter(todo => todo.date === currentDate)
         .forEach(AddItem);
+
+      const rawHabits = localStorage.getItem("Habits");
+      const habits = rawHabits ? JSON.parse(rawHabits) : [];
+      const todaysTodos = todos.filter(todo => todo.date === currentDate);
+      const todoTexts = new Set(todaysTodos.map(t => t.text));
+
+      habits
+        .filter(habit => (Date.parse(habit.date) < Date.parse(currentDate)) && !todoTexts.has(habit.text))
+        .forEach(habit => {
+          try {
+            const date = document.getElementById("date").textContent;
+            const newTodo = {
+              id: Date.now(),
+              date,
+              text: habit.text,
+              status: "pending"
+            };
+
+            todos.push(newTodo);
+            localStorage.setItem("ToDos", JSON.stringify(todos));
+
+            AddItem(newTodo);
+          } finally {
+
+          }
+        });
     }
+
+    const addHabitButton = document.getElementById("addHabit-btn");    
+    addHabitButton.addEventListener("click", () => {
+      const input = document.getElementById("habit-input");    
+      const text = input.value.trim();
+
+      const raw = localStorage.getItem("Habits");
+      const habits = raw ? JSON.parse(raw) : [];
+
+      const date = document.getElementById("date").textContent;
+      const newHabit = {
+        id: Date.now(),
+        date,
+        text,
+      };
+
+      habits.push(newHabit);
+      localStorage.setItem("Habits", JSON.stringify(habits));      
+
+      try {
+        // 1. load existing todos
+        const raw = localStorage.getItem("ToDos");
+        const todos = raw ? JSON.parse(raw) : [];
+
+        const date = document.getElementById("date").textContent;
+        const newTodo = {
+          id: Date.now(),
+          date,
+          text,
+          status: "pending"
+        };
+
+        todos.push(newTodo);
+        localStorage.setItem("ToDos", JSON.stringify(todos));
+
+        AddItem(newTodo);
+      } finally {
+        input.value = "";        
+      }
+    });
 
     const addButton = document.getElementById("add-btn");    
     addButton.addEventListener("click", () => {

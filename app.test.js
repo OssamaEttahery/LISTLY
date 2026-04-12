@@ -65,6 +65,38 @@ function isValidDateString(str) {
     );
 }
 
+test("When loading any date the daily habits are visible", async ({ page }) => {
+  const readySel = createSelect(page);
+
+  const input = await readySel.select("#habit-input");
+  const button = await readySel.select("#addHabit-btn");
+  await input.fill("Test habit");
+  await button.click();
+
+  const list = await readySel.select("#todo-list");
+  await expect(list).toContainText("Test habit");
+
+  await page.reload();
+
+  await expect(list).toContainText("Test habit");
+
+  const buttonNext = await readySel.select("#next-btn");
+  await buttonNext.click();
+
+  await expect(list).toContainText("Test habit");
+
+  const buttonPrev = await readySel.select("#prev-btn");
+  await buttonPrev.click();
+  await buttonPrev.click();
+
+  const listIteams = await readySel.selectAll("#todo-list li");
+  await expect(listIteams).toHaveCount(0); 
+
+  await buttonNext.click();
+  await buttonNext.click();
+  await expect(listIteams).toHaveCount(1); 
+});
+
 test("adding a todo shows it in the list", async ({ page }) => {
   const readySel = createSelect(page);
 

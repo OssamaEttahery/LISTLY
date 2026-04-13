@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />  
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="manifest" href="./manifest.json" />
 </head>
 <body>
@@ -273,11 +274,9 @@
   body > .date-nav,
   body > .input-row,
   body > #todo-list {
-    max-width: 480px;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 16px;
-    padding-right: 16px;
+    width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
   }
 
   /* ===== DATE NAVIGATION ===== */
@@ -490,6 +489,9 @@
     body > .date-nav,
     body > .input-row,
     body > #todo-list {
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
       padding-left: 24px;
       padding-right: 24px;
     }
@@ -514,14 +516,6 @@
 
     li {
       padding: 18px 20px;
-    }
-  }
-
-  @media (min-width: 768px) {
-    body > .date-nav,
-    body > .input-row,
-    body > #todo-list {
-      max-width: 560px;
     }
 
     .date-nav button {
